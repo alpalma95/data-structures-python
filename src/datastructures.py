@@ -8,13 +8,6 @@ update this file to implement the following already declared methods:
 """
 from random import randint
 
-class Member:
-    def __init__(self, first_name, id, age, lucky_numbers):
-        self.first_name = first_name
-        self.id = id
-        self.age = age
-        self.lucky_numbers = lucky_numbers
-
 class FamilyStructure:
     def __init__(self, last_name):
         self.last_name = last_name
@@ -59,15 +52,9 @@ class FamilyStructure:
     def get_all_members(self):
         return self._members
 
-# testing
-
-adams_family = FamilyStructure('Adams')
-gomez = Member('Gomez', adams_family._generateId(), 40, [5, 2])
-morticia = Member("Morticia", adams_family._generateId(), 35, [3, 7])
-thing = Member("Thing", adams_family._generateId(), 3, [8, 9])
-test = Member("Test", adams_family._generateId(), 3, [8, 9])
-
-adams_family.add_member(gomez)
-adams_family.add_member(morticia)
-adams_family.add_member(thing)
-adams_family.add_member(test)
+class Member:
+    def __init__(self, first_name, age, lucky_numbers):
+        self.first_name = first_name
+        self.id = FamilyStructure._generateId(self)
+        self.age = age
+        self.lucky_numbers = lucky_numbers

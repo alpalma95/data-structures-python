@@ -5,7 +5,7 @@ import os
 from flask import Flask, request, jsonify, url_for
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
-from datastructures import FamilyStructure
+from datastructures import FamilyStructure, Member
 #from models import Person
 
 app = Flask(__name__)
@@ -13,7 +13,16 @@ app.url_map.strict_slashes = False
 CORS(app)
 
 # create the jackson family object
-jackson_family = FamilyStructure("Jackson")
+addams_family = FamilyStructure("Addams")
+
+gomez = Member('Gomez', 40, [5, 2])
+morticia = Member("Morticia", 35, [3, 7])
+thing = Member("Thing", 3, [8, 9])
+
+addams_family.add_member(gomez)
+addams_family.add_member(morticia)
+addams_family.add_member(thing)
+
 
 # Handle/serialize errors like a JSON object
 @app.errorhandler(APIException)
@@ -29,15 +38,38 @@ def sitemap():
 def handle_hello():
 
     # this is how you can use the Family datastructure by calling its methods
-    members = jackson_family.get_all_members()
+    members = addams_family.get_all_members()
     response_body = {
-        "hello": "world",
-        "family": members
+        "family_members": members
     }
-
 
     return jsonify(response_body), 200
 
+
+@app.route('/members/<int:member_id>', methods=["GET"])
+def retrieve_member(member_id):
+    member = addams_family.get_member(member_id)
+
+    return jsonify(member)
+
+
+@app.route('/members/add', methods=['POST'])
+def add_member():
+    request_body = request.data
+    body = request.get_json(force=True)
+    name = body["name"]
+    age = body["age"]
+    lucky_numbers = tuple(body["lucky_numbers"])
+    new_member = Member(name, age, list(lucky_numbers))
+    addams_family.add_member(new_member)
+
+    return jsonify(addams_family._members)
+
+@app.route('/members/delete/<int:member_id>', methods=['DELETE'])
+def delete_member(member_id):
+    addams_family.delete_member(member_id)
+    return jsonify(addams_family._members)
+    
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3000))
